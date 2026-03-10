@@ -153,23 +153,22 @@ const App: React.FC = () => {
       // Detect active section based on proximity to the top/middle of viewport
       const observerOptions = {
         root: null,
-        rootMargin: '-10% 0px -60% 0px',
-        threshold: 0.3
+        rootMargin: '-20% 0px -70% 0px',
+        threshold: 0.01 // Use a very low threshold so large sections trigger correctly
       };
 
       const observerCallback = (entries: IntersectionObserverEntry[]) => {
-        const visibleEntries = entries.filter(e => e.isIntersecting);
-        
-        if (visibleEntries.length > 0) {
-          // Sort by intersectionRatio descending to find the most visible one in the rootMargin area
-          visibleEntries.sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-          const id = visibleEntries[0].target.id;
-          
-          if (id === 'hero') setActiveSection('index');
-          else if (id === 'work') setActiveSection('work');
-          else if (id === 'about') setActiveSection('about');
-          else if (id === 'contact-info') setActiveSection('contact');
-        }
+        // We want to find the section that is currently "most" in the active area
+        // or simply the first one that started intersecting
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const id = entry.target.id;
+            if (id === 'hero') setActiveSection('index');
+            else if (id === 'work') setActiveSection('work');
+            else if (id === 'about') setActiveSection('about');
+            else if (id === 'contact-info') setActiveSection('contact');
+          }
+        });
       };
 
       observer = new IntersectionObserver(observerCallback, observerOptions);
