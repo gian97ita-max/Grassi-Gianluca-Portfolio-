@@ -131,7 +131,7 @@ const App: React.FC = () => {
     let timeoutId: NodeJS.Timeout;
 
     const setupObservers = () => {
-      // Scroll reveal observer
+      // Scroll reveal observer (Keep this for animations)
       const revealObserverOptions = {
         threshold: 0.1,
         rootMargin: '0px 0px -50px 0px'
@@ -145,48 +145,57 @@ const App: React.FC = () => {
         });
       }, revealObserverOptions);
 
+      // Select all reveal elements and observe them
       const revealElements = document.querySelectorAll('.reveal');
       revealElements.forEach((el) => {
+        // If it's already in view, add the class immediately
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight) {
+          el.classList.add('reveal-visible');
+        }
         revealObserver?.observe(el);
       });
+    };
 
-      // Detect active section based on proximity to the top/middle of viewport
-      const observerOptions = {
-        root: null,
-        rootMargin: '-20% 0px -70% 0px',
-        threshold: 0.01 // Use a very low threshold so large sections trigger correctly
-      };
+    // Use a slightly longer timeout to ensure React has finished rendering the DOM
+    timeoutId = setTimeout(setupObservers, 200);
 
-      const observerCallback = (entries: IntersectionObserverEntry[]) => {
-        // We want to find the section that is currently "most" in the active area
-        // or simply the first one that started intersecting
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const id = entry.target.id;
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const fullHeight = document.documentElement.scrollHeight;
+      
+      // 1. Bottom of page check (Force Contact)
+      if (windowHeight + scrollPosition >= fullHeight - 150) {
+        setActiveSection('contact');
+        return;
+      }
+
+      // 2. Top of page check (Force Index)
+      if (scrollPosition < 100) {
+        setActiveSection('index');
+        return;
+      }
+
+      // 3. Section detection based on scroll position
+      const sectionIds = ['hero', 'work', 'about', 'contact-info'];
+      const offset = 250; // Trigger point offset from top
+
+      for (let i = sectionIds.length - 1; i >= 0; i--) {
+        const el = document.getElementById(sectionIds[i]);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          const top = rect.top + scrollPosition;
+          
+          if (scrollPosition + offset >= top) {
+            const id = sectionIds[i];
             if (id === 'hero') setActiveSection('index');
             else if (id === 'work') setActiveSection('work');
             else if (id === 'about') setActiveSection('about');
             else if (id === 'contact-info') setActiveSection('contact');
+            break;
           }
-        });
-      };
-
-      observer = new IntersectionObserver(observerCallback, observerOptions);
-      
-      const sectionIds = ['hero', 'work', 'about', 'contact-info'];
-      sectionIds.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) observer?.observe(el);
-      });
-    };
-
-    // Use a small timeout to ensure React has finished rendering the DOM
-    // The user requested 100ms delay
-    timeoutId = setTimeout(setupObservers, 100);
-
-    const handleScroll = () => {
-      if (window.scrollY < 50) {
-        setActiveSection('index');
+        }
       }
     };
 
@@ -202,6 +211,24 @@ const App: React.FC = () => {
 
   return (
     <div className="relative min-h-screen bg-black overflow-x-hidden selection:bg-white selection:text-black">
+      {/* Global Reveal Styles */}
+      <style>{`
+        .reveal {
+          opacity: 0;
+          transform: translateY(30px);
+          transition: all 0.8s cubic-bezier(0.2, 1, 0.3, 1);
+          will-change: transform, opacity;
+        }
+        .reveal-visible {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        .delay-100 { transition-delay: 100ms; }
+        .delay-200 { transition-delay: 200ms; }
+        .delay-300 { transition-delay: 300ms; }
+        .delay-400 { transition-delay: 400ms; }
+        .delay-500 { transition-delay: 500ms; }
+      `}</style>
       {currentView === 'main' ? (
         <div className="pt-[100px] md:pt-[80px]">
           <Navbar currentView={activeSection} onNavigate={handleNavigate} />

@@ -41,10 +41,16 @@ const CaseStudy: React.FC<CaseStudyProps> = ({ onBack, onViewStrategy, onContact
       }, observerOptions);
 
       const revealElements = document.querySelectorAll('.reveal');
-      revealElements.forEach((el) => observer?.observe(el));
+      revealElements.forEach((el) => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight) {
+          el.classList.add('reveal-visible');
+        }
+        observer?.observe(el);
+      });
     };
 
-    const timeoutId = setTimeout(setupObserver, 100);
+    const timeoutId = setTimeout(setupObserver, 200);
 
     return () => {
       clearTimeout(timeoutId);
