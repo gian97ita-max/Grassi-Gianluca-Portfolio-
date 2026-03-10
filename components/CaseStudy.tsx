@@ -24,24 +24,31 @@ const CaseStudy: React.FC<CaseStudyProps> = ({ onBack, onViewStrategy, onContact
 
     window.addEventListener('scroll', handleScroll);
 
-    const observerOptions = {
-      threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px'
+    let observer: IntersectionObserver | null = null;
+
+    const setupObserver = () => {
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      };
+
+      observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('reveal-visible');
+          }
+        });
+      }, observerOptions);
+
+      const revealElements = document.querySelectorAll('.reveal');
+      revealElements.forEach((el) => observer?.observe(el));
     };
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('reveal-visible');
-        }
-      });
-    }, observerOptions);
-
-    const revealElements = document.querySelectorAll('.reveal');
-    revealElements.forEach((el) => observer.observe(el));
+    const timeoutId = setTimeout(setupObserver, 100);
 
     return () => {
-      observer.disconnect();
+      clearTimeout(timeoutId);
+      if (observer) observer.disconnect();
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);

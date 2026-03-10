@@ -126,61 +126,64 @@ const App: React.FC = () => {
   useEffect(() => {
     if (currentView !== 'main') return;
 
-    // Scroll reveal observer
-    const revealObserverOptions = {
-      threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px'
-    };
+    let observer: IntersectionObserver | null = null;
+    let revealObserver: IntersectionObserver | null = null;
+    let timeoutId: NodeJS.Timeout;
 
-    const revealObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('reveal-visible');
-        }
-      });
-    }, revealObserverOptions);
+    const setupObservers = () => {
+      // Scroll reveal observer
+      const revealObserverOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      };
 
-    // Use a small timeout to ensure React has finished rendering the DOM
-    const setupReveal = () => {
+      revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('reveal-visible');
+          }
+        });
+      }, revealObserverOptions);
+
       const revealElements = document.querySelectorAll('.reveal');
       revealElements.forEach((el) => {
-        // Reset visibility if needed when returning to main view
-        // el.classList.remove('reveal-visible'); 
-        revealObserver.observe(el);
+        revealObserver?.observe(el);
+      });
+
+      // Detect active section based on proximity to the top/middle of viewport
+      const observerOptions = {
+        root: null,
+        rootMargin: '-10% 0px -60% 0px',
+        threshold: 0.3
+      };
+
+      const observerCallback = (entries: IntersectionObserverEntry[]) => {
+        const visibleEntries = entries.filter(e => e.isIntersecting);
+        
+        if (visibleEntries.length > 0) {
+          // Sort by intersectionRatio descending to find the most visible one in the rootMargin area
+          visibleEntries.sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+          const id = visibleEntries[0].target.id;
+          
+          if (id === 'hero') setActiveSection('index');
+          else if (id === 'work') setActiveSection('work');
+          else if (id === 'about') setActiveSection('about');
+          else if (id === 'contact-info') setActiveSection('contact');
+        }
+      };
+
+      observer = new IntersectionObserver(observerCallback, observerOptions);
+      
+      const sectionIds = ['hero', 'work', 'about', 'contact-info'];
+      sectionIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) observer?.observe(el);
       });
     };
 
-    const timeoutId = setTimeout(setupReveal, 200);
-
-    // Detect active section based on proximity to the top/middle of viewport
-    const observerOptions = {
-      root: null,
-      rootMargin: '-10% 0px -60% 0px',
-      threshold: 0.3
-    };
-
-    const observerCallback = (entries: IntersectionObserverEntry[]) => {
-      const visibleEntries = entries.filter(e => e.isIntersecting);
-      
-      if (visibleEntries.length > 0) {
-        // Sort by intersectionRatio descending to find the most visible one in the rootMargin area
-        visibleEntries.sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-        const id = visibleEntries[0].target.id;
-        
-        if (id === 'hero') setActiveSection('index');
-        else if (id === 'work') setActiveSection('work');
-        else if (id === 'about') setActiveSection('about');
-        else if (id === 'contact-info') setActiveSection('contact');
-      }
-    };
-
-    const observer = new IntersectionObserver(observerCallback, observerOptions);
-    
-    const sectionIds = ['hero', 'work', 'about', 'contact-info'];
-    sectionIds.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
+    // Use a small timeout to ensure React has finished rendering the DOM
+    // The user requested 100ms delay
+    timeoutId = setTimeout(setupObservers, 100);
 
     const handleScroll = () => {
       if (window.scrollY < 50) {
@@ -191,8 +194,8 @@ const App: React.FC = () => {
     window.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
-      observer.disconnect();
-      revealObserver.disconnect();
+      if (observer) observer.disconnect();
+      if (revealObserver) revealObserver.disconnect();
       clearTimeout(timeoutId);
       window.removeEventListener('scroll', handleScroll);
     };
