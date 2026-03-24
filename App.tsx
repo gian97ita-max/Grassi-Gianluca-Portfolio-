@@ -118,6 +118,12 @@ const App: React.FC = () => {
     window.scrollTo(0, 0);
   };
 
+  const handleShowResume = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    setCurrentView('resume');
+    window.scrollTo(0, 0);
+  };
+
   const handleBackToHome = () => {
     setCurrentView('main');
     window.scrollTo(0, 0);
@@ -231,7 +237,7 @@ const App: React.FC = () => {
       `}</style>
       {currentView === 'main' ? (
         <div className="pt-[100px] md:pt-[80px]">
-          <Navbar currentView={activeSection} onNavigate={handleNavigate} />
+          <Navbar currentView={activeSection} onNavigate={handleNavigate} onShowResume={handleShowResume} />
           
           <main className="transition-opacity duration-500">
             <Hero />
@@ -269,11 +275,11 @@ const App: React.FC = () => {
                       <div className="group relative w-fit">
                         <span className="text-[10px] uppercase tracking-widest text-zinc-600 mb-6 block font-mono">Get in touch</span>
                         <a 
-                          href="mailto:hello@grassigianluca.com" 
+                          href="mailto:gianlucagrassi97@icloud.com" 
                           className="block group"
                         >
                           <span className="text-xl md:text-4xl font-extrabold tracking-tighter hover:text-zinc-400 transition-colors duration-500 border-b border-white group-hover:border-zinc-500 pb-1 break-all md:break-normal">
-                            hello@grassigianluca.com
+                            gianlucagrassi97@icloud.com
                           </span>
                         </a>
                       </div>
@@ -283,7 +289,7 @@ const App: React.FC = () => {
                           <span className="text-[10px] uppercase tracking-widest text-zinc-600 block font-mono">Connect</span>
                           <ul className="space-y-3 text-sm">
                             <li><a href="https://www.linkedin.com/in/grassigianlucagg/" target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-white transition-colors underline decoration-zinc-800 underline-offset-8">LinkedIn</a></li>
-                            <li><a href="https://ais-dev-aw4nqxuspxom6v6iivtohs-112891356495.europe-west2.run.app?view=resume" target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-white transition-colors underline decoration-zinc-800 underline-offset-8">My resume</a></li>
+                            <li><button onClick={handleShowResume} className="text-zinc-400 hover:text-white transition-colors underline decoration-zinc-800 underline-offset-8">My resume</button></li>
                           </ul>
                         </div>
                         <div className="space-y-6">

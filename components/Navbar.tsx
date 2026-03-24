@@ -5,9 +5,10 @@ import { Menu, X } from 'lucide-react';
 interface NavbarProps {
   currentView: string;
   onNavigate: (view: string) => void;
+  onShowResume: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
+const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate, onShowResume }) => {
   const [time, setTime] = useState(new Date());
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -65,7 +66,8 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
               <button onClick={() => onNavigate('index')} className={navLinkClass('index')}>Index,</button>
               <button onClick={() => onNavigate('work')} className={navLinkClass('work')}>Work,</button>
               <button onClick={() => onNavigate('about')} className={navLinkClass('about')}>About me,</button>
-              <button onClick={() => onNavigate('contact')} className={navLinkClass('contact')}>Contact</button>
+              <button onClick={() => onNavigate('contact')} className={navLinkClass('contact')}>Contact,</button>
+              <button onClick={onShowResume} className={navLinkClass('resume')}>Resume</button>
             </div>
           </div>
 
@@ -111,6 +113,15 @@ const Navbar: React.FC<NavbarProps> = ({ currentView, onNavigate }) => {
                 className={`text-4xl font-black tracking-tighter uppercase italic text-left ${currentView === 'contact' ? 'text-white' : 'text-zinc-800'}`}
               >
                 Contact
+              </button>
+              <button 
+                onClick={() => {
+                  onShowResume();
+                  setIsMenuOpen(false);
+                }} 
+                className={`text-4xl font-black tracking-tighter uppercase italic text-left ${currentView === 'resume' ? 'text-white' : 'text-zinc-800'}`}
+              >
+                Resume
               </button>
             </div>
           </div>

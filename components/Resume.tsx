@@ -131,7 +131,7 @@ const Resume: React.FC<ResumeProps> = ({ onBack }) => {
           
           <div className="flex flex-col md:flex-row justify-between items-center border-y border-zinc-200 py-6 text-[11px] uppercase tracking-widest text-zinc-500 font-medium gap-4">
             <span className="text-center md:text-left">Languages · Italian Native · English Upper-Intermediate</span>
-            <a href="mailto:hello@grassigianluca.com" className="hover:text-black transition-colors">hello@grassigianluca.com</a>
+            <a href="mailto:gianlucagrassi97@icloud.com" className="hover:text-black transition-colors">gianlucagrassi97@icloud.com</a>
           </div>
         </header>
 
